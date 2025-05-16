@@ -109,11 +109,7 @@ class Rk13IntroPageState extends State<Rk13IntroPage> {
             filterQuality: FilterQuality.high,
           ),
         ),
-        Container(
-          width: w,
-          height: w * 0.4,
-          color: Colors.black.withAlpha(128),
-        ),
+
         Positioned(
           left: w * 0.05,
           top: w * 0.05,
