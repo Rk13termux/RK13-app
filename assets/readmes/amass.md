@@ -57,4 +57,3 @@ Las contribuciones son bienvenidas. Por favor, revisa las guías de contribució
 ## 📜 Licencia
 Apache License 2.0
 
----

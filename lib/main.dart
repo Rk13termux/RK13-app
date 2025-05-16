@@ -123,7 +123,7 @@ class _MainLayoutState extends State<MainLayout> {
                     children: [
                       DrawerHeader(
                         decoration: const BoxDecoration(
-                          color: Colors.transparent,
+                          color: Color.fromARGB(0, 255, 0, 0),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +131,7 @@ class _MainLayoutState extends State<MainLayout> {
                             Icon(
                               Icons.terminal,
                               size: 48,
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: Color.fromARGB(255, 255, 0, 0),
                             ),
                             SizedBox(height: 10),
                             Text(
@@ -158,7 +158,7 @@ class _MainLayoutState extends State<MainLayout> {
                     ],
                   ),
                 ),
-                const Divider(color: Color.fromARGB(97, 255, 0, 0)),
+                const Divider(color: Color.fromARGB(95, 255, 0, 0)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,

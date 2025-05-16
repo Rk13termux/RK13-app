@@ -133,7 +133,7 @@ class Rk13IntroPageState extends State<Rk13IntroPage> {
         Text(
           'RK13-APP V-TC-13',
           style: TextStyle(
-            color: Colors.redAccent,
+            color: Color.fromARGB(255, 255, 0, 0),
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -142,7 +142,11 @@ class Rk13IntroPageState extends State<Rk13IntroPage> {
         Text(
           'Transforma tu móvil en una terminal Linux avanzada. '
           'Instala paquetes, automatiza tareas y desarrolla scripts donde quieras.',
-          style: TextStyle(color: Colors.white70, fontSize: 16, height: 1.4),
+          style: TextStyle(
+            color: Color.fromARGB(179, 255, 255, 255),
+            fontSize: 16,
+            height: 1.4,
+          ),
         ),
       ],
     );
@@ -423,7 +427,7 @@ class Rk13IntroPageState extends State<Rk13IntroPage> {
                   width: 40,
                   height: 40,
                   decoration: const BoxDecoration(
-                    color: Colors.redAccent,
+                    color: Color.fromARGB(255, 255, 0, 0),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.close, color: Colors.white),
@@ -442,7 +446,7 @@ class Rk13IntroPageState extends State<Rk13IntroPage> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.redAccent),
+        border: Border.all(color: const Color.fromARGB(255, 255, 0, 0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,7 +454,7 @@ class Rk13IntroPageState extends State<Rk13IntroPage> {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.redAccent,
+              color: Color.fromARGB(255, 255, 0, 0),
               fontWeight: FontWeight.bold,
             ),
           ),
