@@ -122,6 +122,8 @@ flutter:
     - assets/images/code9.png
     - assets/images/code10.png
 
+    - assets/icons/iconrepo.png
+
 flutter_launcher_icons:
   android: true
   ios: false

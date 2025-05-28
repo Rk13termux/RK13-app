@@ -1,468 +1,563 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'learn_python_page.dart';
-import 'donar_page.dart';
+          import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+          import 'package:animate_do/animate_do.dart';
+          import 'learn_python_page.dart';
+          import 'donar_page.dart';
+          import 'package:url_launcher/url_launcher.dart';
 
-class Rk13IntroPage extends StatefulWidget {
-  const Rk13IntroPage({super.key});
+          const kPrimaryColor = Color(0xFFFF0033);
+          const kBackgroundColor = Color(0xFF000000);
 
-  @override
-  State<Rk13IntroPage> createState() => Rk13IntroPageState();
+          class Rk13IntroPage extends StatelessWidget {
+            const Rk13IntroPage({super.key});
+
+            @override
+            Widget build(BuildContext context) {
+              final w = MediaQuery.of(context).size.width;
+              return Scaffold(
+                backgroundColor: kBackgroundColor,
+                body: SafeArea(
+                  child: ListView(
+                    padding: const EdgeInsets.all(0),
+                    children: [
+                      // Banner superior con logo y nombre animados
+                      Stack(
+                        children: [
+                          Container(
+                            width: w,
+                            height: w * 0.45,
+                            decoration: const BoxDecoration(
+                              color: kBackgroundColor,
+                            ),
+                            child: Image.asset(
+                              'assets/images/intro_banner.png',
+                              fit: BoxFit.cover,
+                              width: w,
+                              height: w * 0.45,
+                              color: Colors.black.withOpacity(0.5),
+                              colorBlendMode: BlendMode.darken,
+                            ),
+                          ),
+                          Positioned(
+                            left: 24,
+                            top: 24,
+                            child: ZoomIn(
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/rk13_logo.png',
+                                    width: 60,
+                                    height: 60,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  const Text(
+                                    'RK13 Installer',
+                                    style: TextStyle(
+                                      color: kPrimaryColor,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      // Slogan
+                      const Center(
+                        child: Text(
+                          'Transforma tu móvil en una terminal Linux avanzada',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      // Tarjeta de introducción
+                      _IntroCard(
+                        icon: FontAwesomeIcons.terminal,
+                        title: 'Automatiza, aprende y hackea',
+                        description:
+                            'Instala herramientas, aprende Python y domina Termux desde tu móvil. Scripts, recursos y utilidades en un solo lugar.',
+                      ),
+                      const SizedBox(height: 12),
+                      // Tarjeta de beneficios
+                      _IntroCard(
+                        icon: FontAwesomeIcons.shieldAlt,
+                        title: 'Seguridad y Potencia',
+                        description:
+                            'Accede a más de 50 repositorios, scripts de hacking ético y personalización avanzada. Todo en negro mate y con estilo profesional.',
+                      ),
+                      const SizedBox(height: 18),
+                      // Botón principal
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kPrimaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 8,
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                            ),
+                          ),
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Aprende Python Ahora'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LearnPythonPage()),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      // Frase motivacional
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          '"El conocimiento es la mejor arma" - Chema Alonso',
+                          style: TextStyle(
+                            color: Colors.white38,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      // Botón de donación
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: kPrimaryColor,
+                            side: const BorderSide(color: kPrimaryColor, width: 2),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          icon: const Icon(Icons.favorite),
+                          label: const Text('Donar y Apoyar'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const DonarPage()),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      // Redes sociales
+                      _SocialRow(),
+                      const SizedBox(height: 18),
+                      // Footer
+                      const Center(
+                        child: Text(
+                          '© 2025 Rk13Termux - Todos los derechos reservados',
+                          style: TextStyle(color: Colors.white24, fontSize: 12),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              );
+            }
+          }
+
+          // Tarjeta de introducción reutilizable
+          class _IntroCard extends StatelessWidget {
+            final IconData icon;
+            final String title;
+            final String description;
+            const _IntroCard({
+              required this.icon,
+              required this.title,
+              required this.description,
+            });
+
+            @override
+            Widget build(BuildContext context) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Card(
+                  color: Colors.black,
+                  elevation: 8,
+                  shadowColor: kPrimaryColor.withOpacity(0.15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: const BorderSide(color: kPrimaryColor, width: 1.2),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
+                    child: Row(
+                      children: [
+                        FaIcon(icon, color: kPrimaryColor, size: 32),
+                        const SizedBox(width: 18),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  color: kPrimaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                description,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+
+import 'package:flutter/material.dart';
+import 'dart:ui';
+import 'pages/rk13_intro_page.dart';
+import 'pages/home_page.dart';
+import 'pages/learn_python_page.dart';
+import 'pages/termux_commands_page.dart';
+import 'pages/bash_tools_page.dart';
+import 'pages/donar_page.dart';
+
+// Nuevos colores
+const kBackgroundColor = Color(0xFF262729); // gris
+const kPrimaryColor = Color(0xFF3489FE);    // azul
+const kTextColor = Colors.white;
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const T3RC0D3App());
 }
 
-class Rk13IntroPageState extends State<Rk13IntroPage> {
-  String? _zoomImagePath;
-
-  Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      debugPrint('No se pudo abrir la URL: $url');
-    }
-  }
-
-  void _openZoom(String asset) => setState(() => _zoomImagePath = asset);
-  void _closeZoom() => setState(() => _zoomImagePath = null);
+class T3RC0D3App extends StatelessWidget {
+  const T3RC0D3App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 24),
-                _buildBanner(),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildTermuxSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildAIDASection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildGallerySection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildTermuxExclusiveSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildPythonAIDASection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildCommandsSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildPackagesSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildVirtualenvSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildCronSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildGitIntegrationSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildSecurityToolsSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildSSHSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildShellCustomizationSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildPerformanceTipsSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildCommunityResourcesSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildLearnButton()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildQuotesSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildDonateSection()),
-                const SizedBox(height: 24),
-                _buildSection(child: _buildSocialRow()),
-                const SizedBox(height: 40),
-                _buildFooter(),
-                const SizedBox(height: 20),
-                if (_zoomImagePath != null) _buildZoomOverlay(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSection({required Widget child}) {
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.all(16),
-      child: child,
-    );
-  }
-
-  Widget _buildBanner() {
-    final w = MediaQuery.of(context).size.width;
-    return Stack(
-      children: [
-        ElasticInDown(
-          child: Image.asset(
-            'assets/images/intro_banner.png',
-            width: w,
-            height: w * 0.4,
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
-          ),
-        ),
-
-        Positioned(
-          left: w * 0.05,
-          top: w * 0.05,
-          child: ZoomIn(
-            child: Image.asset(
-              'assets/images/rk13_logo.png',
-              width: w * 0.15,
-              height: w * 0.15,
-              filterQuality: FilterQuality.high,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTermuxSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text(
-          'RK13-APP V-TC-13',
-          style: TextStyle(
-            color: Color.fromARGB(255, 255, 0, 0),
+    return MaterialApp(
+      title: 'T3R-C0D3',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: kBackgroundColor,
+        canvasColor: kBackgroundColor,
+        primaryColor: kPrimaryColor,
+        cardColor: Colors.grey[900],
+        appBarTheme: const AppBarTheme(
+          backgroundColor: kBackgroundColor,
+          surfaceTintColor: kBackgroundColor,
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: kPrimaryColor),
+          titleTextStyle: TextStyle(
+            color: kTextColor,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 8),
-        Text(
-          'Transforma tu móvil en una terminal Linux avanzada. '
-          'Instala paquetes, automatiza tareas y desarrolla scripts donde quieras.',
-          style: TextStyle(
-            color: Color.fromARGB(179, 255, 255, 255),
-            fontSize: 16,
-            height: 1.4,
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: kTextColor, fontSize: 16, height: 1.5),
+          bodyLarge: TextStyle(color: kTextColor, fontSize: 18),
+        ),
+        iconTheme: const IconThemeData(color: kPrimaryColor),
+        drawerTheme: const DrawerThemeData(backgroundColor: kBackgroundColor),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: kPrimaryColor,
+            foregroundColor: kTextColor,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
-      ],
+        listTileTheme: const ListTileThemeData(
+          iconColor: kPrimaryColor,
+          textColor: kTextColor,
+          selectedColor: kPrimaryColor,
+        ),
+      ),
+      home: const MainLayout(),
     );
   }
+}
 
-  Widget _buildAIDASection() {
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(color: Colors.white, fontSize: 15, height: 1.6),
-        children: [
-          TextSpan(
-            text:
-                '🚨 Atención: Hábitos rígidos terminan hoy. Nuestro método te lleva a experto Python en Termux.',
-          ),
-          TextSpan(
-            text:
-                '\n\n🛠️ Interés: Aprende con ejemplos prácticos: APIs y automatización.',
-          ),
-          TextSpan(
-            text:
-                '\n\n🔥 Deseo: Crea herramientas que ahorran horas y ofrecen servicios profesionales.',
-          ),
-          TextSpan(
-            text:
-                '\n\n⚡ Acción: “Aprende Python Ahora” y desbloquea todos los módulos.',
+class MainLayout extends StatefulWidget {
+  const MainLayout({super.key});
+
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    const Rk13IntroPage(),
+    HomePage(),
+    const LearnPythonPage(),
+    const TermuxCommandsPage(),
+    const BashToolsPage(),
+  ];
+
+  final List<String> _titles = [
+    "Bienvenido a T3R-C0D3",
+    "Repositorios",
+    "Aprende Python",
+    "Comandos Termux",
+    "Scripts Bash Tools",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_titles[_currentIndex]),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'Sobre esta app',
+            onPressed: () => _mostrarInfo(context),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildGallerySection() {
-    return SizedBox(
-      height: 160,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (c, i) {
-          final asset = 'assets/images/termux${i + 1}.png';
-          return GestureDetector(
-            onTap: () => _openZoom(asset),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                asset,
-                width: 120,
-                height: 160,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTermuxExclusiveSection() {
-    return const Text(
-      '¿Qué es Termux? Qué puedes hacer y quién lo utiliza:\n'
-      '• Emulador Linux móvil para devs y pentesters.\n'
-      '• Automatiza tareas, analiza redes, despliega herramientas.\n'
-      '• SSH: ssh user@192.168.1.10 a Kali Linux.\n'
-      '• De Python a Ansible, todo en RK13-APP.',
-      style: TextStyle(color: Colors.white, fontSize: 14, height: 1.6),
-    );
-  }
-
-  Widget _buildPythonAIDASection() {
-    return const Text(
-      '🚀 Python en tu móvil, sin instalaciones tediosas.\n\n'
-      '🔍 Automatiza tareas, analiza datos y crea bots con líneas de código.\n\n'
-      '💡 Materializa ideas y ofrece servicios desde Termux.\n\n'
-      '🔥 Pulsa “Aprende Python Ahora” y convierte tu teléfono en tu mejor herramienta.',
-      style: TextStyle(color: Colors.white, fontSize: 14, height: 1.6),
-    );
-  }
-
-  Widget _buildCommandsSection() => _buildBox('Comandos Esenciales', [
-    '- pkg install python',
-    '- pkg install git',
-    '- apt update && apt upgrade',
-    '- ls, cd, mv, cp',
-  ]);
-
-  Widget _buildPackagesSection() => _buildBox('Paquetes Populares', [
-    '- nmap',
-    '- hydra',
-    '- metasploit',
-    '- termux-api',
-  ]);
-
-  Widget _buildVirtualenvSection() => _buildBox('Entornos Virtuales', [
-    '- pip install virtualenv',
-    '- virtualenv venv',
-    '- source venv/bin/activate',
-    '- deactivate',
-  ]);
-
-  Widget _buildCronSection() => _buildBox('Automatización con Cron', [
-    '- crontab -e',
-    '- 0 * * * * script.sh',
-    '- :wq guardar y salir',
-  ]);
-
-  Widget _buildGitIntegrationSection() => _buildBox('Integración con Git', [
-    '- git clone <url>',
-    '- git add . && git commit',
-    '- git push origin main',
-    '- Configurar SSH',
-  ]);
-
-  Widget _buildSecurityToolsSection() =>
-      _buildBox('Herramientas de Seguridad', [
-        '- nmap -sV <IP>',
-        '- hydra -l admin -P pass',
-        '- sqlmap -u "<url>" --batch',
-        '- msfconsole',
-      ]);
-
-  Widget _buildSSHSection() => _buildBox('Acceso Remoto / SSH', [
-    '- pkg install openssh',
-    '- sshd',
-    '- ssh user@<IP>',
-    '- ssh-copy-id user@<IP>',
-  ]);
-
-  Widget _buildShellCustomizationSection() =>
-      _buildBox('Personalización del Shell', [
-        '- pkg install zsh',
-        '- pkg install oh-my-zsh',
-        '- Configura ~/.zshrc',
-        '- Agrega temas y plugins',
-      ]);
-
-  Widget _buildPerformanceTipsSection() => _buildBox('Tips de Rendimiento', [
-    '- termux-wake-lock',
-    '- Ajusta Governor',
-    '- Cierra apps de fondo',
-    '- Usa termux-api scripts',
-  ]);
-
-  Widget _buildCommunityResourcesSection() =>
-      _buildBox('Comunidad & Recursos', [
-        '- termux.com/community',
-        '- reddit.com/r/termux',
-        '- t.me/termuxgroup',
-        '- github.com/termux',
-      ]);
-
-  Widget _buildLearnButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed:
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const LearnPythonPage()),
-            ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.redAccent,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-        child: const Text(
-          'Aprende Python Ahora',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuotesSection() {
-    return Column(
-      children: const [
-        Text(
-          '"El conocimiento es la mejor arma" - Chema Alonso',
-          style: TextStyle(color: Colors.white54, fontStyle: FontStyle.italic),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 8),
-        Text(
-          '"La mejor forma de predecir el futuro es crearlo" - Alan Kay',
-          style: TextStyle(color: Colors.white54, fontStyle: FontStyle.italic),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDonateSection() {
-    return Center(
-      child: ElevatedButton(
-        onPressed:
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const DonarPage()),
-            ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.redAccent,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-        child: const Text(
-          'Donar y Apoyar',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialRow() {
-    final items = <Map<String, dynamic>>[
-      {'icon': FontAwesomeIcons.github, 'url': 'https://github.com/Rk13termux'},
-      {
-        'icon': FontAwesomeIcons.instagram,
-        'url': 'https://instagram.com/Rk13termux',
-      },
-      {'icon': FontAwesomeIcons.telegram, 'url': 'https://t.me/Rk13termux'},
-      {
-        'icon': FontAwesomeIcons.youtube,
-        'url': 'https://youtube.com/@rk13termux',
-      },
-    ];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children:
-          items.map((item) {
-            final url = item['url'] as String;
-            return GestureDetector(
-              onTap: () => _launchUrl(url),
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.redAccent, width: 2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: FaIcon(
-                    item['icon'] as IconData,
-                    color: Colors.redAccent,
-                    size: 24,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-    );
-  }
-
-  Widget _buildFooter() {
-    return const Center(
-      child: Text(
-        '© 2025 Rk13Termux - Todos los derechos reservados',
-        style: TextStyle(color: Colors.white24, fontSize: 12),
-      ),
-    );
-  }
-
-  Widget _buildZoomOverlay() {
-    return Positioned.fill(
-      child: Material(
-        color: Colors.black.withAlpha(200),
+      drawer: Drawer(
         child: Stack(
           children: [
-            Center(child: Image.asset(_zoomImagePath!, fit: BoxFit.contain)),
-            Positioned(
-              top: 40,
-              right: 20,
-              child: GestureDetector(
-                onTap: _closeZoom,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 255, 0, 0),
-                    shape: BoxShape.circle,
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(color: kBackgroundColor.withOpacity(0.7)),
+            ),
+            Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      DrawerHeader(
+                        decoration: const BoxDecoration(
+                          color: Color(0x00000000),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Icon(
+                              Icons.terminal,
+                              size: 48,
+                              color: kPrimaryColor,
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "T3R-C0D3",
+                              style: TextStyle(
+                                fontSize: 24,
+                                color: kTextColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "Instala y explora herramientas de hacking ético.",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color.fromARGB(179, 175, 156, 156),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      for (var i = 0; i < _titles.length; i++)
+                        _buildDrawerItem(_getIcon(i), _titles[i], i),
+                    ],
                   ),
-                  child: const Icon(Icons.close, color: Colors.white),
                 ),
-              ),
+                const Divider(color: kPrimaryColor),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Developer & Programmer;",
+                        style: TextStyle(
+                          color: Color.fromARGB(179, 187, 157, 157),
+                        ),
+                      ),
+                      const Text(
+                        "Sebastian Lara - RK13",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: kTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DonarPage(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kPrimaryColor,
+                        ),
+                        icon: const Icon(
+                          Icons.favorite,
+                          color: kTextColor,
+                        ),
+                        label: const Text(
+                          "DONAR",
+                          style: TextStyle(
+                            color: kTextColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
+      body: _pages[_currentIndex],
     );
   }
 
-  Widget _buildBox(String title, List<String> lines) {
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color.fromARGB(255, 255, 0, 0)),
+  IconData _getIcon(int index) {
+    switch (index) {
+      case 0:
+        return Icons.info;
+      case 1:
+        return Icons.extension;
+      case 2:
+        return Icons.code;
+      case 3:
+        return Icons.computer;
+      case 4:
+        return Icons.build;
+      default:
+        return Icons.device_unknown;
+    }
+  }
+
+  ListTile _buildDrawerItem(IconData icon, String title, int index) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: _currentIndex == index ? kPrimaryColor : kTextColor,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color.fromARGB(255, 255, 0, 0),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 6),
-          for (var l in lines)
-            Text(l, style: const TextStyle(color: Colors.white)),
-        ],
+      title: Text(
+        title,
+        style: TextStyle(
+          color: _currentIndex == index ? kPrimaryColor : kTextColor,
+        ),
       ),
+      selected: _currentIndex == index,
+      onTap: () {
+        setState(() => _currentIndex = index);
+        Navigator.pop(context);
+      },
     );
   }
-}
+
+  void _mostrarInfo(BuildContext context) {
+    showAboutDialog(
+      context: context,
+      applicationName: 'T3R-C0D3',
+      applicationVersion: '1.0.0',
+      applicationIcon: const Icon(
+        Icons.security,
+        size: 40,
+        color: kPrimaryColor,
+      ),
+      children: [
+        const Text(
+          'Una app de herramientas automatizadas para usuarios de Termux. '
+          'Incluye scripts y accesos rápidos a más de 30 repositorios de seguridad.',
+          style: TextStyle(color: kTextColor),
+        ),
+      ],
+    );
+  }
+}          // Fila de redes sociales
+          class _SocialRow extends StatelessWidget {
+            @override
+            Widget build(BuildContext context) {
+              final items = [
+                {'icon': FontAwesomeIcons.github, 'url': 'https://github.com/Rk13termux'},
+                {'icon': FontAwesomeIcons.instagram, 'url': 'https://instagram.com/Rk13termux'},
+                {'icon': FontAwesomeIcons.telegram, 'url': 'https://t.me/Rk13termux'},
+              ];
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: items.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(30),
+                      onTap: () async {
+                        final url = item['url'] as String;
+                        final uri = Uri.parse(url);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white10,
+                        radius: 22,
+                        child: FaIcon(
+                          item['icon'] as IconData,
+                          color: kPrimaryColor,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            }
+          }
