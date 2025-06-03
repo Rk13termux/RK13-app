@@ -1,91 +1,154 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <!-- 🎯 Permisos necesarios -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
-    <!-- 🎯 Permisos para abrir otras apps -->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" 
-        tools:ignore="QueryAllPackagesPermission" />
-    
-    <application
-        android:label="T3R-C0D3"
-        android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
-        android:theme="@style/LaunchTheme"
-        android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true">
-        
-        <!-- 🎯 Actividad principal -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
-            
-            <!-- 🎯 Meta-data para Flutter -->
-            <meta-data
-                android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme" />
-            
-            <!-- 🎯 Intent filters -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            
-            <!-- 🎯 Intent filter para abrir desde otras apps -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="t3rc0d3" />
-            </intent-filter>
-        </activity>
-        
-        <!-- 🎯 Meta-data para AdMob -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/> <!-- Reemplaza con tu ID real -->
-            
-        <!-- 🎯 Proveedor de archivos para compartir -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
-        
-        <!-- 🎯 Servicio para notificaciones (futuro) -->
-        <service
-            android:name=".NotificationService"
-            android:exported="false" />
-    </application>
-    
-    <!-- 🎯 Queries para verificar apps instaladas -->
-    <queries>
-        <package android:name="com.termux" />
-        <package android:name="com.android.chrome" />
-        <package android:name="com.android.browser" />
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="http" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" />
-        </intent>
-    </queries>
-</manifest>
+name: Build APK (Release - arm64-v8a Only)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código fuente
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
+          cache: true
+
+      - name: Forzar migración a Android v2 embedding
+        run: |
+          echo "🔧 Forzando migración a Android v2 embedding..."
+          
+          # Crear MainActivity.kt si no existe
+          mkdir -p android/app/src/main/kotlin/com/example/t3r_c0d3
+          cat > android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt << 'EOF'
+          package com.example.t3r_c0d3
+
+          import io.flutter.embedding.android.FlutterActivity
+
+          class MainActivity: FlutterActivity() {
+          }
+          EOF
+          
+          # Actualizar AndroidManifest.xml
+          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              
+              <uses-permission android:name="android.permission.INTERNET" />
+              
+              <application
+                  android:label="T3R-C0D3"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher">
+                  
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:theme="@style/LaunchTheme"
+                      android:windowSoftInputMode="adjustResize">
+                      
+                      <meta-data
+                        android:name="io.flutter.embedding.android.NormalTheme"
+                        android:resource="@style/NormalTheme"
+                        />
+                      
+                      <intent-filter android:autoVerify="true">
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  
+                  <meta-data
+                      android:name="flutterEmbedding"
+                      android:value="2" />
+              </application>
+          </manifest>
+          EOF
+          
+          echo "✅ Archivos Android v2 embedding creados/actualizados"
+
+      - name: Verificar archivos Android
+        run: |
+          echo "📁 Verificando estructura Android..."
+          ls -la android/app/src/main/
+          echo "📱 MainActivity.kt:"
+          cat android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt
+          echo "📱 AndroidManifest.xml:"
+          cat android/app/src/main/AndroidManifest.xml
+
+      - name: Configurar entorno
+        run: |
+          flutter config --no-analytics
+          flutter precache --android
+          flutter doctor -v
+
+      - name: Limpiar proyecto completamente
+        run: |
+          flutter clean
+          cd android
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew clean || echo "Gradle clean failed, continuing..."
+          fi
+          cd ..
+          rm -rf build/
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Compilar APK Release (solo arm64)
+        run: |
+          flutter build apk \
+            --release \
+            --target-platform android-arm64 \
+            --verbose
+
+      - name: Verificar APK generado
+        run: |
+          echo "🔍 Buscando APKs generados..."
+          find build -name "*.apk" -type f -exec ls -lah {} \;
+          
+      - name: Comprimir APK en ZIP
+        run: |
+          mkdir output
+          
+          # Buscar el APK en diferentes ubicaciones posibles
+          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            echo "✅ APK encontrado en flutter-apk/"
+            cp build/app/outputs/flutter-apk/app-release.apk output/rk13-arm64.apk
+          elif [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
+            echo "✅ APK encontrado en apk/release/"
+            cp build/app/outputs/apk/release/app-release.apk output/rk13-arm64.apk
+          else
+            echo "🔍 Buscando cualquier APK..."
+            APK_FILE=$(find build -name "*.apk" -type f | head -1)
+            if [ -n "$APK_FILE" ]; then
+              echo "✅ APK encontrado: $APK_FILE"
+              cp "$APK_FILE" output/rk13-arm64.apk
+            else
+              echo "❌ No se encontró ningún APK"
+              exit 1
+            fi
+          fi
+          
+          cd output
+          zip rk13-arm64.zip rk13-arm64.apk
+          echo "📦 APK empaquetado: $(ls -lah rk13-arm64.zip)"
+
+      - name: Subir ZIP como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rk13-release-arm64
+          path: output/rk13-arm64.zip
+          if-no-files-found: error
