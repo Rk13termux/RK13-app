@@ -1,132 +1,40 @@
-name: rk13
-description: "A new Flutter project."
+name: t3r_c0d3
+description: "Una app de herramientas automatizadas para usuarios de Termux"
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.7.2 <4.0.0"
+  sdk: '>=3.3.1 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  url_launcher: ^6.2.5
-  clipboard: ^0.1.3
-  android_intent_plus: ^5.3.0
-  cupertino_icons: ^1.0.8
-  permission_handler: ^11.0.0
-  another_flushbar: ^1.10.29
-  fluttertoast: ^8.2.4
-  flutter_markdown: ^0.6.17
-  path_provider: ^2.1.2
-  animate_do: ^3.1.2
-  font_awesome_flutter: ^10.7.0
-  animations: ^2.0.0
+  google_mobile_ads: ^3.0.0
+  font_awesome_flutter: ^10.6.0
+  cupertino_icons: ^1.0.2
+  url_launcher: ^6.2.1
+  android_intent_plus: ^4.0.3
+  path_provider: ^2.1.1
   shared_preferences: ^2.2.2
-  http: ^1.0.0
-  
+  device_info_plus: ^9.1.1
+  package_info_plus: ^4.2.0
+  http: ^1.1.0
+  dio: ^5.3.3
+  flutter_animate: ^4.3.0
+  shimmer: ^3.0.0
+  provider: ^6.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
-
+  
+  # Solo assets que existen
   assets:
-    # Scripts
-    - assets/scripts/ohmyzsh.sh
-    - assets/scripts/powerlevel10k.sh
-    - assets/scripts/fzf.sh
-    - assets/scripts/exa.sh
-    - assets/scripts/ripgrep.sh
-    - assets/scripts/bat.sh
-    - assets/scripts/fd.sh
-    - assets/scripts/hexyl.sh
-    - assets/scripts/neofetch.sh
-    - assets/scripts/termux-api.sh
-    - assets/scripts/termux-app.sh
-    - assets/scripts/termux-styling.sh
-    - assets/scripts/antigen.sh
-    - assets/scripts/zsh-syntax-highlighting.sh
-    - assets/scripts/zsh-autosuggestions.sh
-    - assets/scripts/havoc-framework.sh
-    - assets/scripts/hcxdumptool.sh
-    - assets/scripts/sublist3r.sh
-    - assets/scripts/amass.sh
-    - assets/scripts/masscan.sh
-    - assets/scripts/pwncat.sh
-    - assets/scripts/proot-distro.sh
-    - assets/scripts/mitmf.sh
-    - assets/scripts/routersploit.sh
-    - assets/scripts/scapy.sh
-    - assets/scripts/weechat.sh
-    - assets/scripts/bettercap.sh
-    - assets/scripts/drozer.sh
-    - assets/scripts/feroxbuster.sh
-
-    # READMEs
-    - assets/readmes/ohmyzsh.md
-    - assets/readmes/powerlevel10k.md
-    - assets/readmes/fzf.md
-    - assets/readmes/exa.md
-    - assets/readmes/ripgrep.md
-    - assets/readmes/bat.md
-    - assets/readmes/fd.md
-    - assets/readmes/hexyl.md
-    - assets/readmes/neofetch.md
-    - assets/readmes/termux-api.md
-    - assets/readmes/termux-app.md
-    - assets/readmes/termux-styling.md
-    - assets/readmes/antigen.md
-    - assets/readmes/zsh-syntax-highlighting.md
-    - assets/readmes/zsh-autosuggestions.md
-    - assets/readmes/havoc-framework.md
-    - assets/readmes/hcxdumptool.md
-    - assets/readmes/sublist3r.md
-    - assets/readmes/amass.md
-    - assets/readmes/masscan.md
-    - assets/readmes/pwncat.md
-    - assets/readmes/proot-distro.md
-    - assets/readmes/mitmf.md
-    - assets/readmes/routersploit.md
-    - assets/readmes/scapy.md
-    - assets/readmes/weechat.md
-    - assets/readmes/bettercap.md
-    - assets/readmes/drozer.md
-    - assets/readmes/feroxbuster.md
-
-    # images intro pages
-    
-    - assets/images/intro_banner.png
-    - assets/images/rk13_logo.png
-    - assets/images/termux1.png
-    - assets/images/termux2.png
-    - assets/images/termux3.png
-    - assets/images/termux4.png
-    - assets/images/termux5.png
-    - assets/images/termux6.png
-    - assets/images/termux7.png
-    - assets/images/termux8.png
-    - assets/images/termux9.png
-    - assets/images/termux10.png
-    
-    #galeria curso python
-    
-    - assets/images/code1.png
-    - assets/images/code2.png
-    - assets/images/code3.png
-    - assets/images/code4.png
-    - assets/images/code5.png
-    - assets/images/code6.png
-    - assets/images/code7.png
-    - assets/images/code8.png
-    - assets/images/code9.png
-    - assets/images/code10.png
-
-    - assets/icons/iconrepo.png
-
-flutter_launcher_icons:
-  android: true
-  ios: false
-  image_path: "assets/icon.png"
+    - assets/images/
+    - assets/icons/
+    - assets/readmes/
+    - assets/scripts/

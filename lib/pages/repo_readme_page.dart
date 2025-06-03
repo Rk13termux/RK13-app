@@ -1,266 +1,436 @@
 import 'package:flutter/material.dart';
-  import 'package:flutter/services.dart' show rootBundle;
-  import 'package:flutter_markdown/flutter_markdown.dart';
-  import 'package:url_launcher/url_launcher.dart';
-  import 'package:clipboard/clipboard.dart';
-  import 'package:android_intent_plus/android_intent.dart';
-  import 'package:permission_handler/permission_handler.dart';
-  import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-  import 'package:animate_do/animate_do.dart';
-  import '../utils/script_installer.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../models/repo_model.dart';
+import '../services/admob_service.dart';
+import '../services/git_clone_service.dart';
 
-  // Colores del tema
-  const kPrimaryColor = Color(0xFF3489FE);
-  const kBackgroundColor = Color(0xFF262729);
+const kPrimaryColor = Color(0xFF3489FE);
+const kBackgroundColor = Color(0xFF262729);
 
-  class RepoReadmePage extends StatefulWidget {
-    final String repoName;
-    final String scriptFile;
-    final String readmeAsset;
-    final String githubUrl;
+class RepoReadmePage extends StatefulWidget {
+  final String repoName;
+  final String scriptFile;
+  final String readmeAsset;
+  final String githubUrl;
 
-    const RepoReadmePage({
-      required this.repoName,
-      required this.scriptFile,
-      required this.readmeAsset,
-      required this.githubUrl,
-      super.key,
-    });
+  const RepoReadmePage({
+    super.key,
+    required this.repoName,
+    required this.scriptFile,
+    required this.readmeAsset,
+    required this.githubUrl,
+  });
 
-    @override
-    State<RepoReadmePage> createState() => _RepoReadmePageState();
+  @override
+  State<RepoReadmePage> createState() => _RepoReadmePageState();
+}
+
+class _RepoReadmePageState extends State<RepoReadmePage>
+    with TickerProviderStateMixin {
+  String _readmeContent = '';
+  bool _isLoading = true;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupAnimations();
+    _loadReadmeContent();
+    _showInitialAd();
   }
 
-  class _RepoReadmePageState extends State<RepoReadmePage> {
-    String readmeContent = "Cargando README...";
-    bool isSaving = false;
-    bool isSaved = false;
+  void _setupAnimations() {
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
 
-    @override
-    void initState() {
-      super.initState();
-      _loadReadme();
-    }
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    ));
+  }
 
-    Future<void> _loadReadme() async {
-      try {
-        final content = await rootBundle.loadString(widget.readmeAsset);
-        setState(() {
-          readmeContent = content;
-        });
-      } catch (e) {
-        setState(() {
-          readmeContent = "No se pudo cargar el README.";
-        });
-      }
-    }
+  Future<void> _showInitialAd() async {
+    // 🎯 Mostrar anuncio al ver repositorio
+    await AdMobService.showAdForAction(
+      adType: AdType.repoView,
+      context: context,
+      onAdCompleted: () {
+        debugPrint('✅ Anuncio de repositorio completado');
+      },
+      onAdSkipped: () {
+        debugPrint('⏭️ Anuncio de repositorio omitido');
+      },
+    );
+  }
 
-    Future<void> _guardarScript() async {
-      final granted = await _pedirPermiso();
-      if (!granted) return;
-
+  Future<void> _loadReadmeContent() async {
+    try {
+      final content = await rootBundle.loadString(widget.readmeAsset);
       setState(() {
-        isSaving = true;
-        isSaved = false;
+        _readmeContent = content;
+        _isLoading = false;
       });
-
-      try {
-        await ScriptInstaller.saveScript(widget.scriptFile);
-        setState(() {
-          isSaved = true;
-        });
-        _mostrarToast("Script guardado en almacenamiento", Colors.greenAccent);
-      } catch (e) {
-        _mostrarToast("Error al guardar el script", Colors.redAccent);
-      } finally {
-        setState(() {
-          isSaving = false;
-        });
-      }
+      _fadeController.forward();
+    } catch (e) {
+      setState(() {
+        _readmeContent = _generateFallbackReadme();
+        _isLoading = false;
+      });
+      _fadeController.forward();
+      debugPrint('❌ Error cargando README: $e');
     }
+  }
 
-    Future<bool> _pedirPermiso() async {
-      final status = await Permission.manageExternalStorage.request();
-      if (status.isGranted) return true;
+  String _generateFallbackReadme() {
+    return '''
+# ${widget.repoName}
 
-      _mostrarToast("Permiso de almacenamiento denegado", Colors.orange);
-      return false;
+## 📋 Descripción
+Este repositorio contiene herramientas y recursos útiles para desarrollo y seguridad.
+
+## 🚀 Instalación Rápida
+Para instalar este repositorio en Termux, usa el comando de clonación que se genera automáticamente.
+
+## 📖 Uso
+1. Clona el repositorio
+2. Lee la documentación incluida
+3. Ejecuta los scripts según las instrucciones
+
+## 🔗 Enlaces
+- [Repositorio en GitHub](${widget.githubUrl})
+- [Documentación oficial](${widget.githubUrl}/blob/main/README.md)
+
+## ⚠️ Importante
+Asegúrate de tener los permisos necesarios y usa estas herramientas de manera ética y responsable.
+
+---
+*README generado automáticamente por T3R-C0D3*
+''';
+  }
+
+  Future<void> _generateCloneCommand() async {
+    // 🎯 Mostrar anuncio antes de generar comando
+    await AdMobService.showAdForAction(
+      adType: AdType.cloneGenerated,
+      context: context,
+      onAdCompleted: () async {
+        await _performCloneGeneration();
+      },
+      onAdSkipped: () async {
+        await _performCloneGeneration();
+      },
+    );
+  }
+
+  Future<void> _performCloneGeneration() async {
+    try {
+      // Crear RepoModel temporal para usar con GitCloneService
+      final repo = RepoModel(
+        name: widget.repoName,
+        description: 'Repositorio desde T3R-C0D3',
+        scriptFile: widget.scriptFile,
+        readmeAsset: widget.readmeAsset,
+        githubUrl: widget.githubUrl,
+        category: 'General',
+        iconAsset: 'assets/icons/iconrepo.png',
+      );
+
+      final command = await GitCloneService.generateCloneCommand(repo);
+
+      // Mostrar diálogo de éxito
+      GitCloneService.showCloneSuccessDialog(context, repo, command);
+    } catch (e) {
+      _showErrorSnackBar('Error generando comando: $e');
     }
+  }
 
-    Future<void> _copiarComando() async {
-      final path = "/storage/emulated/0/termuxcode/${widget.scriptFile}";
-      await FlutterClipboard.copy("bash $path");
-      _mostrarToast("📋 Comando copiado: bash $path", kPrimaryColor);
+  Future<void> _openInGitHub() async {
+    // 🎯 Mostrar anuncio antes de ir a GitHub
+    await AdMobService.showAdForAction(
+      adType: AdType.githubRedirect,
+      context: context,
+      onAdCompleted: () async {
+        await _performGitHubOpen();
+      },
+      onAdSkipped: () async {
+        await _performGitHubOpen();
+      },
+    );
+  }
+
+  Future<void> _performGitHubOpen() async {
+    final success = await GitCloneService.openGitHubRepo(widget.githubUrl);
+    if (!success) {
+      _showErrorSnackBar('No se pudo abrir GitHub');
     }
+  }
 
-    void _mostrarToast(String mensaje, Color color) {
-      final overlay = Overlay.of(context);
+  Future<void> _shareRepository() async {
+    try {
+      await Clipboard.setData(ClipboardData(
+        text:
+            '🔗 ${widget.repoName}\n\n${widget.githubUrl}\n\n📱 Compartido desde T3R-C0D3',
+      ));
 
-      final entry = OverlayEntry(
-        builder: (context) => Positioned(
-          bottom: 80,
-          left: 24,
-          right: 24,
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                mensaje,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+      _showSuccessSnackBar(
+          'Información del repositorio copiada al portapapeles');
+    } catch (e) {
+      _showErrorSnackBar('Error al compartir: $e');
+    }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        title: Text(
+          widget.repoName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      );
-
-      overlay.insert(entry);
-      Future.delayed(const Duration(seconds: 2), () => entry.remove());
-    }
-
-    Future<void> _abrirTermux() async {
-      const intent = AndroidIntent(
-        action: 'action_view',
-        package: 'com.termux',
-      );
-      try {
-        await intent.launch();
-      } catch (e) {
-        _mostrarToast("No se pudo abrir Termux", Colors.redAccent);
-      }
-    }
-
-    Future<void> _abrirGithub() async {
-      final uri = Uri.parse(widget.githubUrl);
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        _mostrarToast("No se pudo abrir GitHub", Colors.redAccent);
-      }
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
         backgroundColor: kBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: kBackgroundColor,
-          title: Text(
-            widget.repoName,
-            style: const TextStyle(
-              color: kPrimaryColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: kPrimaryColor),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'Compartir',
+            onPressed: _shareRepository,
           ),
-          iconTheme: const IconThemeData(color: kPrimaryColor),
-          elevation: 2,
-        ),
-        body: FadeIn(
-          duration: const Duration(milliseconds: 400),
-          child: Column(
-            children: [
-              Expanded(
-                child: Markdown(
-                  data: readmeContent,
-                  styleSheet: MarkdownStyleSheet(
-                    p: const TextStyle(color: Colors.white, fontSize: 16),
-                    h1: const TextStyle(color: kPrimaryColor, fontSize: 26, fontWeight: FontWeight.bold),
-                    h2: const TextStyle(color: kPrimaryColor, fontSize: 22, fontWeight: FontWeight.bold),
-                    h3: const TextStyle(color: kPrimaryColor, fontSize: 19, fontWeight: FontWeight.bold),
-                    code: const TextStyle(color: Colors.greenAccent, fontFamily: 'monospace'),
-                    blockquote: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic),
-                    listBullet: const TextStyle(color: kPrimaryColor),
-                    tableHead: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
-                    tableBody: const TextStyle(color: Colors.white),
-                    codeblockDecoration: BoxDecoration(
-                      color: const Color(0xFF232323),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    blockquoteDecoration: BoxDecoration(
-                      color: kPrimaryColor.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  selectable: true,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(kPrimaryColor),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Tooltip(
-                        message: isSaved ? "Script guardado" : "Guardar script en almacenamiento",
-                        child: ElevatedButton.icon(
-                          icon: isSaving
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.2,
+            )
+          : Column(
+              children: [
+                // 🎯 Barra de acciones mejorada
+                Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        kPrimaryColor.withOpacity(0.1),
+                        kPrimaryColor.withOpacity(0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: kPrimaryColor.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _ActionButton(
+                        icon: Icons.terminal,
+                        label: 'Clonar',
+                        color: Colors.green,
+                        onPressed: _generateCloneCommand,
+                      ),
+                      _ActionButton(
+                        icon: Icons.open_in_browser,
+                        label: 'GitHub',
+                        color: kPrimaryColor,
+                        onPressed: _openInGitHub,
+                      ),
+                      _ActionButton(
+                        icon: Icons.download,
+                        label: 'Termux',
+                        color: Colors.orange,
+                        onPressed: () async {
+                          final success = await GitCloneService.openTermuxApp();
+                          if (!success) {
+                            _showErrorSnackBar('Termux no está instalado');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 🎯 Contenido del README con animación
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[900],
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: kPrimaryColor.withOpacity(0.2),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header del repositorio
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: kPrimaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                )
-                              : const Icon(Icons.save_alt),
-                          label: Text(isSaved ? "Guardado" : "Guardar"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kPrimaryColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                                  child: const Icon(
+                                    Icons.folder_special,
+                                    color: kPrimaryColor,
+                                    size: 32,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.repoName,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Script: ${widget.scriptFile}',
+                                        style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 14,
+                                          fontFamily: 'monospace',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
+
+                            const SizedBox(height: 24),
+                            const Divider(color: kPrimaryColor, thickness: 1),
+                            const SizedBox(height: 24),
+
+                            // Contenido del README
+                            SelectableText(
+                              _readmeContent,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                height: 1.6,
+                                fontFamily: 'monospace',
+                              ),
                             ),
-                            textStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                            elevation: 4,
-                          ),
-                          onPressed: isSaving ? null : _guardarScript,
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Tooltip(
-                      message: "Copiar comando bash",
-                      child: IconButton(
-                        icon: const FaIcon(FontAwesomeIcons.clipboard, color: kPrimaryColor),
-                        onPressed: _copiarComando,
-                      ),
-                    ),
-                    Tooltip(
-                      message: "Abrir Termux",
-                      child: IconButton(
-                        icon: const FaIcon(FontAwesomeIcons.terminal, color: Colors.greenAccent),
-                        onPressed: _abrirTermux,
-                      ),
-                    ),
-                    Tooltip(
-                      message: "Ver en GitHub",
-                      child: IconButton(
-                        icon: const FaIcon(FontAwesomeIcons.github, color: Colors.white),
-                        onPressed: _abrirGithub,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 16),
+              ],
+            ),
+    );
+  }
+}
+
+// 🎯 Widget para botones de acción
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: Colors.white,
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(16),
+            elevation: 4,
+          ),
+          child: Icon(icon, size: 24),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      );
-    }
+      ],
+    );
   }
+}

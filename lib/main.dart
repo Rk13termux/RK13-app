@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // ✅ Import necesario para kDebugMode
 import 'dart:ui';
 import 'pages/rk13_intro_page.dart';
 import 'pages/home_page.dart';
@@ -6,6 +7,7 @@ import 'pages/learn_python_page.dart';
 import 'pages/termux_commands_page.dart';
 import 'pages/bash_tools_page.dart';
 import 'pages/donar_page.dart';
+import 'services/admob_service.dart'; // ✅ Nuevo import
 // import 'pages/login_page.dart'; // Eliminado
 // import 'services/auth_service.dart'; // Eliminado
 
@@ -14,8 +16,17 @@ const kBackgroundColor = Color(0xFF262729); // gris
 const kPrimaryColor = Color(0xFF3489FE); // azul
 const kTextColor = Colors.white;
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 🎯 Inicializar AdMob al iniciar la app
+  try {
+    await AdMobService.initializeAds();
+    debugPrint('✅ AdMob inicializado correctamente en main()');
+  } catch (e) {
+    debugPrint('❌ Error inicializando AdMob en main(): $e');
+  }
+
   runApp(const T3RC0D3App());
 }
 
@@ -84,7 +95,7 @@ class MainLayout extends StatefulWidget {
   State<MainLayout> createState() => _MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout> {
+class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
@@ -104,6 +115,43 @@ class _MainLayoutState extends State<MainLayout> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // 🎯 Precargar anuncios después de que la app esté lista
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadAdsWithDelay();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // 🧹 Limpiar recursos de AdMob al cerrar la app
+    AdMobService.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // 🔄 Precargar anuncios cuando la app vuelva al primer plano
+    if (state == AppLifecycleState.resumed) {
+      AdMobService.preloadAds();
+    }
+  }
+
+  // 🎯 Precargar anuncios con retraso para mejor UX
+  Future<void> _preloadAdsWithDelay() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (mounted) {
+      AdMobService.preloadAds();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -114,6 +162,32 @@ class _MainLayoutState extends State<MainLayout> {
             tooltip: 'Sobre esta app',
             onPressed: () => _mostrarInfo(context),
           ),
+          // 🎯 Indicador de estado de anuncios (solo en debug)
+          if (kDebugMode)
+            IconButton(
+              icon: Icon(
+                AdMobService.isRewardedAdReady ||
+                        AdMobService.isInterstitialAdReady
+                    ? Icons.monetization_on
+                    : Icons.monetization_on_outlined,
+                color: AdMobService.isRewardedAdReady ||
+                        AdMobService.isInterstitialAdReady
+                    ? Colors.green
+                    : Colors.grey,
+              ),
+              tooltip: 'Estado de anuncios',
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Anuncios: ${AdMobService.isRewardedAdReady ? "✅" : "❌"} Recompensa | '
+                      '${AdMobService.isInterstitialAdReady ? "✅" : "❌"} Intersticial',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
         ],
       ),
       drawer: Drawer(
