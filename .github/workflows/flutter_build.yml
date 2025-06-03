@@ -13,26 +13,103 @@ jobs:
       - name: Checkout código fuente
         uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Configurar Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.1'
+          cache: true
+
+      - name: Configurar entorno
+        run: |
+          flutter config --no-analytics
+          flutter precache --android
+          flutter doctor -v
+
+      - name: Limpiar proyecto completamente
+        run: |
+          flutter clean
+          cd android
+          # Para archivos .gradle.kts
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew clean || echo "Gradle clean failed, continuing..."
+          fi
+          cd ..
+          rm -rf build/
 
       - name: Instalar dependencias
         run: flutter pub get
 
-      - name: Compilar APK Release (solo arm64)
-        run: flutter build apk --release --target-platform android-arm64
+      - name: Verificar configuración Gradle
+        run: |
+          echo "📁 Verificando archivos Gradle..."
+          ls -la android/
+          ls -la android/app/
+          
+          # Verificar que los archivos .kts existen
+          if [ -f "android/build.gradle.kts" ]; then
+            echo "✅ build.gradle.kts (project) encontrado"
+          fi
+          
+          if [ -f "android/app/build.gradle.kts" ]; then
+            echo "✅ build.gradle.kts (app) encontrado"
+          fi
+          
+          if [ -f "android/settings.gradle.kts" ]; then
+            echo "✅ settings.gradle.kts encontrado"
+          fi
 
+      - name: Compilar APK Release (solo arm64)
+        run: |
+          flutter build apk \
+            --release \
+            --target-platform android-arm64 \
+            --verbose \
+            --dart-define=FLUTTER_WEB_AUTO_DETECT=true
+
+      - name: Verificar APK generado
+        run: |
+          echo "🔍 Buscando APKs generados..."
+          find build -name "*.apk" -type f -exec ls -lah {} \;
+          
       - name: Comprimir APK en ZIP
         run: |
           mkdir output
-          cp build/app/outputs/flutter-apk/app-release.apk output/rk13-arm64.apk
+          
+          # Buscar el APK en diferentes ubicaciones posibles
+          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            echo "✅ APK encontrado en flutter-apk/"
+            cp build/app/outputs/flutter-apk/app-release.apk output/rk13-arm64.apk
+          elif [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
+            echo "✅ APK encontrado en apk/release/"
+            cp build/app/outputs/apk/release/app-release.apk output/rk13-arm64.apk
+          else
+            echo "🔍 Buscando cualquier APK..."
+            APK_FILE=$(find build -name "*.apk" -type f | head -1)
+            if [ -n "$APK_FILE" ]; then
+              echo "✅ APK encontrado: $APK_FILE"
+              cp "$APK_FILE" output/rk13-arm64.apk
+            else
+              echo "❌ No se encontró ningún APK"
+              echo "📁 Contenido de build/:"
+              find build -type f -name "*.apk" || echo "No APKs found"
+              exit 1
+            fi
+          fi
+          
           cd output
           zip rk13-arm64.zip rk13-arm64.apk
+          echo "📦 APK empaquetado: $(ls -lah rk13-arm64.zip)"
 
       - name: Subir ZIP como artifact
         uses: actions/upload-artifact@v4
         with:
           name: rk13-release-arm64
           path: output/rk13-arm64.zip
+          if-no-files-found: error
