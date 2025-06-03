@@ -1,115 +1,95 @@
-name: Build APK (Release - arm64-v8a Only)
+name: Build APK Simple
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout código fuente
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.1'
+        cache: true
+        
+    - name: Fix MainActivity package
+      run: |
+        echo "🔧 Corrigiendo package en MainActivity..."
+        mkdir -p android/app/src/main/kotlin/com/example/t3r_c0d3
+        cat > android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt << 'EOF'
+        package com.example.t3r_c0d3
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+        import io.flutter.embedding.android.FlutterActivity
 
-      - name: Configurar Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.1'
-          cache: true
-
-      - name: Configurar entorno
-        run: |
-          flutter config --no-analytics
-          flutter precache --android
-          flutter doctor -v
-
-      - name: Limpiar proyecto completamente
-        run: |
-          flutter clean
+        class MainActivity: FlutterActivity() {
+        }
+        EOF
+        
+    - name: Configure environment
+      run: |
+        flutter config --no-analytics
+        flutter clean
+        flutter pub get
+        
+    - name: Build APK with Gradle fix
+      run: |
+        # Forzar build ignorando warnings de Gradle
+        flutter build apk \
+          --release \
+          --target-platform android-arm64 \
+          --verbose || echo "Build failed, trying alternative..."
+          
+        # Si falla, intentar con flags adicionales  
+        if [ ! -f "build/app/outputs/flutter-apk/app-release.apk" ] && [ ! -f "build/app/outputs/apk/release/app-release.apk" ]; then
+          echo "Intentando build con configuración alternativa..."
           cd android
-          # Para archivos .gradle.kts
-          if [ -f "gradlew" ]; then
-            chmod +x gradlew
-            ./gradlew clean || echo "Gradle clean failed, continuing..."
-          fi
+          ./gradlew assembleRelease --warning-mode=none --no-daemon || echo "Gradle failed"
           cd ..
-          rm -rf build/
-
-      - name: Instalar dependencias
-        run: flutter pub get
-
-      - name: Verificar configuración Gradle
-        run: |
-          echo "📁 Verificando archivos Gradle..."
-          ls -la android/
-          ls -la android/app/
-          
-          # Verificar que los archivos .kts existen
-          if [ -f "android/build.gradle.kts" ]; then
-            echo "✅ build.gradle.kts (project) encontrado"
-          fi
-          
-          if [ -f "android/app/build.gradle.kts" ]; then
-            echo "✅ build.gradle.kts (app) encontrado"
-          fi
-          
-          if [ -f "android/settings.gradle.kts" ]; then
-            echo "✅ settings.gradle.kts encontrado"
-          fi
-
-      - name: Compilar APK Release (solo arm64)
-        run: |
-          flutter build apk \
-            --release \
-            --target-platform android-arm64 \
-            --verbose \
-            --dart-define=FLUTTER_WEB_AUTO_DETECT=true
-
-      - name: Verificar APK generado
-        run: |
-          echo "🔍 Buscando APKs generados..."
-          find build -name "*.apk" -type f -exec ls -lah {} \;
-          
-      - name: Comprimir APK en ZIP
-        run: |
-          mkdir output
-          
-          # Buscar el APK en diferentes ubicaciones posibles
-          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-            echo "✅ APK encontrado en flutter-apk/"
-            cp build/app/outputs/flutter-apk/app-release.apk output/rk13-arm64.apk
-          elif [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
-            echo "✅ APK encontrado en apk/release/"
-            cp build/app/outputs/apk/release/app-release.apk output/rk13-arm64.apk
-          else
-            echo "🔍 Buscando cualquier APK..."
-            APK_FILE=$(find build -name "*.apk" -type f | head -1)
-            if [ -n "$APK_FILE" ]; then
-              echo "✅ APK encontrado: $APK_FILE"
-              cp "$APK_FILE" output/rk13-arm64.apk
-            else
-              echo "❌ No se encontró ningún APK"
-              echo "📁 Contenido de build/:"
-              find build -type f -name "*.apk" || echo "No APKs found"
-              exit 1
-            fi
-          fi
-          
+        fi
+        
+    - name: Package APK
+      run: |
+        mkdir -p output
+        
+        # Buscar APK en cualquier ubicación
+        APK_FILE=""
+        
+        if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+          APK_FILE="build/app/outputs/flutter-apk/app-release.apk"
+        elif [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
+          APK_FILE="build/app/outputs/apk/release/app-release.apk"
+        else
+          # Buscar cualquier APK
+          APK_FILE=$(find build android -name "*.apk" -type f | grep -E "(release|arm64)" | head -1)
+        fi
+        
+        if [ -n "$APK_FILE" ] && [ -f "$APK_FILE" ]; then
+          echo "✅ APK encontrado: $APK_FILE"
+          cp "$APK_FILE" output/t3r-c0d3-arm64.apk
           cd output
-          zip rk13-arm64.zip rk13-arm64.apk
-          echo "📦 APK empaquetado: $(ls -lah rk13-arm64.zip)"
-
-      - name: Subir ZIP como artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rk13-release-arm64
-          path: output/rk13-arm64.zip
-          if-no-files-found: error
+          zip t3r-c0d3-arm64.zip t3r-c0d3-arm64.apk
+          echo "📦 APK empaquetado: $(ls -lah t3r-c0d3-arm64.zip)"
+        else
+          echo "❌ No se encontró APK válido"
+          echo "🔍 Archivos encontrados:"
+          find . -name "*.apk" -type f
+          exit 1
+        fi
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: t3r-c0d3-arm64
+        path: output/t3r-c0d3-arm64.zip
+        if-no-files-found: error

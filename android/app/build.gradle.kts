@@ -26,24 +26,24 @@ android {
         jvmTarget = "1.8"
     }
 
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
-    }
-
     defaultConfig {
         applicationId = "com.example.t3r_c0d3"
         minSdk = 21
         targetSdk = 34
         versionCode = flutterVersionCode.toInt()
         versionName = flutterVersionName
-        multiDexEnabled = true
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            isShrinkResources = false
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+    
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 }
@@ -53,5 +53,5 @@ flutter {
 }
 
 dependencies {
-    implementation("androidx.multidex:multidx:2.0.1")
+    // Dependencias mínimas para evitar conflictos
 }
