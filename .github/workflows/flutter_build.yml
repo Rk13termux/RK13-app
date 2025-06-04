@@ -24,12 +24,27 @@ jobs:
         
     - name: Fix files
       run: |
-        mkdir -p android/app/src/main/kotlin/com/example/t3r_c0d3
-        echo 'package com.example.t3r_c0d3
-        import io.flutter.embedding.android.FlutterActivity
-        class MainActivity: FlutterActivity() {}' > android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt
+        # BORRAR ARCHIVOS CORRUPTOS PRIMERO
+        rm -f android/app/build.gradle.kts
+        rm -f android/app/src/main/AndroidManifest.xml
+        rm -rf android/app/src/main/kotlin/
         
-        echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+        # CREAR ESTRUCTURA LIMPIA
+        mkdir -p android/app/src/main/kotlin/com/example/t3r_c0d3
+        
+        # CREAR MainActivity.kt
+        cat > android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt << 'EOF'
+        package com.example.t3r_c0d3
+
+        import io.flutter.embedding.android.FlutterActivity
+
+        class MainActivity: FlutterActivity() {
+        }
+        EOF
+        
+        # CREAR AndroidManifest.xml
+        cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
             <uses-permission android:name="android.permission.INTERNET" />
             <application android:label="T3R-C0D3" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
                 <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:windowSoftInputMode="adjustResize">
@@ -41,9 +56,10 @@ jobs:
                 </activity>
                 <meta-data android:name="flutterEmbedding" android:value="2" />
             </application>
-        </manifest>' > android/app/src/main/AndroidManifest.xml
+        </manifest>
+        EOF
 
-        # ARREGLAR build.gradle.kts CORRUPTO
+        # CREAR build.gradle.kts LIMPIO
         cat > android/app/build.gradle.kts << 'EOF'
         plugins {
             id("com.android.application")
@@ -93,6 +109,12 @@ jobs:
             source = "../.."
         }
         EOF
+
+        # VERIFICAR QUE SE CREARON CORRECTAMENTE
+        echo "✅ Archivos creados:"
+        ls -la android/app/build.gradle.kts
+        ls -la android/app/src/main/AndroidManifest.xml
+        ls -la android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt
 
     - name: Build
       run: |
