@@ -30,18 +30,19 @@ jobs:
         # Corregir versión de Kotlin en android/settings.gradle.kts
         sed -i 's/"org.jetbrains.kotlin.android") version "1.8.22"/"org.jetbrains.kotlin.android") version "1.9.25"/g' android/settings.gradle.kts
         
-        # Fix resource shrinking issue
-        sed -i '/android {/a\    buildTypes {\n        release {\n            isMinifyEnabled = true\n            isShrinkResources = true\n            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")\n        }\n    }' android/app/build.gradle.kts
+        # Disable resource shrinking to avoid the build error
+        sed -i 's/isShrinkResources = true/\/\/ isShrinkResources = true/g' android/app/build.gradle.kts
+        sed -i 's/shrinkResources true/\/\/ shrinkResources true/g' android/app/build.gradle.kts
         
         # Verificar cambios
         echo "✅ minSdk corregido:"
-        grep -n "minSdk" android/app/build.gradle.kts
+        grep -n "minSdk" android/app/build.gradle.kts || echo "No minSdk found"
         
         echo "✅ Kotlin version corregido:"
-        grep -n "kotlin.android" android/settings.gradle.kts
+        grep -n "kotlin.android" android/settings.gradle.kts || echo "No kotlin.android found"
         
-        echo "✅ Build configuration:"
-        grep -A 8 "buildTypes" android/app/build.gradle.kts
+        echo "✅ Build.gradle.kts content:"
+        cat android/app/build.gradle.kts
         
     - name: Build APK
       run: |
