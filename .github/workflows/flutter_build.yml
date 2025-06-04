@@ -22,6 +22,17 @@ jobs:
         flutter-version: '3.32.1'
         cache: true
         
+    - name: Regenerate Android folder
+      run: |
+        # Eliminar carpeta android corrupta
+        rm -rf android/
+        
+        # Regenerar carpeta android limpia
+        flutter create --platforms android .
+        
+        # Verificar que se creó correctamente
+        ls -la android/
+        
     - name: Build
       run: |
         flutter clean
