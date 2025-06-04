@@ -1,207 +1,38 @@
-name: Build APK Simple
+name: Build APK (Release - arm64-v8a Only)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.32.1'
-        cache: true
-        
-    - name: Fix MainActivity package
-      run: |
-        echo "🔧 Corrigiendo package en MainActivity..."
-        mkdir -p android/app/src/main/kotlin/com/example/t3r_c0d3
-        cat > android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt << 'EOF'
-        package com.example.t3r_c0d3
+      - name: Checkout código fuente
+        uses: actions/checkout@v4
 
-        import io.flutter.embedding.android.FlutterActivity
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
 
-        class MainActivity: FlutterActivity() {
-        }
-        EOF
-        
-        echo "✅ MainActivity.kt creado:"
-        cat android/app/src/main/kotlin/com/example/t3r_c0d3/MainActivity.kt
-        
-    - name: Fix AndroidManifest
-      run: |
-        echo "🔧 Corrigiendo AndroidManifest.xml..."
-        cat > android/app/src/main/AndroidManifest.xml << 'EOF'
-        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <uses-permission android:name="android.permission.INTERNET" />
-            <application
-                android:label="T3R-C0D3"
-                android:name="${applicationName}"
-                android:icon="@mipmap/ic_launcher">
-                <activity
-                    android:name=".MainActivity"
-                    android:exported="true"
-                    android:launchMode="singleTop"
-                    android:theme="@style/LaunchTheme"
-                    android:windowSoftInputMode="adjustResize">
-                    <meta-data
-                      android:name="io.flutter.embedding.android.NormalTheme"
-                      android:resource="@style/NormalTheme" />
-                    <intent-filter android:autoVerify="true">
-                        <action android:name="android.intent.action.MAIN"/>
-                        <category android:name="android.intent.category.LAUNCHER"/>
-                    </intent-filter>
-                </activity>
-                <meta-data
-                    android:name="flutterEmbedding"
-                    android:value="2" />
-            </application>
-        </manifest>
-        EOF
-        
-        echo "✅ AndroidManifest.xml creado:"
-        cat android/app/src/main/AndroidManifest.xml
-        
-    - name: Configure environment
-      run: |
-        flutter config --no-analytics
-        flutter doctor -v
-        
-    - name: Clean and get dependencies
-      run: |
-        flutter clean
-        flutter pub get
-        
-    - name: Debug project structure
-      run: |
-        echo "📁 Estructura del proyecto:"
-        ls -la
-        echo "📁 Estructura Android:"
-        ls -la android/
-        echo "📁 Archivos gradle:"
-        find android -name "*.gradle*" -type f
-        
-    - name: Build APK (Primary attempt)
-      run: |
-        echo "🏗️ Intentando build principal..."
-        set +e  # No fallar inmediatamente
-        flutter build apk \
-          --release \
-          --target-platform android-arm64 \
-          --verbose
-        BUILD_RESULT=$?
-        
-        echo "📊 Resultado del build: $BUILD_RESULT"
-        
-        if [ $BUILD_RESULT -eq 0 ]; then
-          echo "✅ Build exitoso con Flutter"
-        else
-          echo "❌ Build Flutter falló, continuando con alternativas..."
-        fi
-        
-    - name: Build APK (Alternative - Gradle direct)
-      if: always()
-      run: |
-        echo "🏗️ Intentando build alternativo con Gradle..."
-        cd android
-        
-        # Verificar gradlew
-        if [ ! -f "gradlew" ]; then
-          echo "❌ gradlew no encontrado"
-          ls -la
-          exit 1
-        fi
-        
-        chmod +x gradlew
-        
-        # Limpiar primero
-        ./gradlew clean --warning-mode=none --no-daemon || echo "Clean failed"
-        
-        # Build
-        ./gradlew assembleRelease --warning-mode=none --no-daemon --stacktrace || echo "Gradle build failed"
-        
-        cd ..
-        
-    - name: Search for any APK files
-      if: always()
-      run: |
-        echo "🔍 Buscando TODOS los archivos APK..."
-        find . -name "*.apk" -type f 2>/dev/null || echo "No se encontraron APKs"
-        
-        echo "📁 Contenido de build/ (si existe):"
-        if [ -d "build" ]; then
-          find build -type f -name "*.apk" 2>/dev/null || echo "No APKs en build/"
-        else
-          echo "❌ Directorio build/ no existe"
-        fi
-        
-        echo "📁 Contenido de android/ outputs:"
-        find android -path "*/outputs/*" -name "*.apk" -type f 2>/dev/null || echo "No APKs en android/outputs/"
-        
-    - name: Package APK (if found)
-      if: always()
-      run: |
-        mkdir -p output
-        
-        # Buscar APK en múltiples ubicaciones
-        APK_FILE=""
-        
-        # Primero en ubicaciones Flutter estándar
-        if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-          APK_FILE="build/app/outputs/flutter-apk/app-release.apk"
-          echo "✅ APK encontrado en flutter-apk/"
-        elif [ -f "build/app/outputs/apk/release/app-release.apk" ]; then
-          APK_FILE="build/app/outputs/apk/release/app-release.apk"
-          echo "✅ APK encontrado en apk/release/"
-        else
-          # Buscar en android/app/build/
-          APK_FILE=$(find android/app/build -name "*.apk" -type f 2>/dev/null | head -1)
-          if [ -n "$APK_FILE" ]; then
-            echo "✅ APK encontrado en android/app/build/: $APK_FILE"
-          else
-            # Buscar en cualquier lugar
-            APK_FILE=$(find . -name "*.apk" -type f 2>/dev/null | head -1)
-            if [ -n "$APK_FILE" ]; then
-              echo "✅ APK encontrado en ubicación alternativa: $APK_FILE"
-            fi
-          fi
-        fi
-        
-        if [ -n "$APK_FILE" ] && [ -f "$APK_FILE" ]; then
-          echo "📦 Copiando APK: $APK_FILE"
-          cp "$APK_FILE" output/t3r-c0d3-arm64.apk
-          
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Compilar APK Release (solo arm64)
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Comprimir APK en ZIP
+        run: |
+          mkdir output
+          cp build/app/outputs/flutter-apk/app-release.apk output/rk13-arm64.apk
           cd output
-          zip t3r-c0d3-arm64.zip t3r-c0d3-arm64.apk
-          echo "📦 APK empaquetado: $(ls -lah t3r-c0d3-arm64.zip)"
-          
-          # Crear archivo de éxito
-          echo "success" > ../build_success.txt
-        else
-          echo "❌ No se encontró ningún APK válido"
-          echo "📁 Listado completo de archivos:"
-          find . -type f \( -name "*.apk" -o -name "*.aab" \) 2>/dev/null || echo "No APKs/AABs encontrados"
-          
-          # Crear APK dummy para no fallar el artifact
-          echo "dummy" > output/no-apk-found.txt
-          zip output/t3r-c0d3-arm64.zip output/no-apk-found.txt
-        fi
-        
-    - name: Upload APK
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: t3r-c0d3-arm64
-        path: output/t3r-c0d3-arm64.zip
-        if-no-files-found: warn
+          zip rk13-arm64.zip rk13-arm64.apk
+
+      - name: Subir ZIP como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rk13-release-arm64
+          path: output/rk13-arm64.zip
