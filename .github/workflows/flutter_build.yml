@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # ← Añade esta línea para activación manual
+  workflow_dispatch:
 
 jobs:
   build:
@@ -42,12 +42,63 @@ jobs:
                 <meta-data android:name="flutterEmbedding" android:value="2" />
             </application>
         </manifest>' > android/app/src/main/AndroidManifest.xml
-        
+
+        # ARREGLAR build.gradle.kts CORRUPTO
+        cat > android/app/build.gradle.kts << 'EOF'
+        plugins {
+            id("com.android.application")
+            id("org.jetbrains.kotlin.android")
+            id("dev.flutter.flutter-gradle-plugin")
+        }
+
+        val localProperties = java.util.Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+
+        val flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
+        val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
+
+        android {
+            namespace = "com.example.t3r_c0d3"
+            compileSdk = 34
+
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+            
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+
+            defaultConfig {
+                applicationId = "com.example.t3r_c0d3"
+                minSdk = 21
+                targetSdk = 34
+                versionCode = flutterVersionCode.toInt()
+                versionName = flutterVersionName
+            }
+
+            buildTypes {
+                release {
+                    isMinifyEnabled = false
+                    signingConfig = signingConfigs.getByName("debug")
+                }
+            }
+        }
+
+        flutter {
+            source = "../.."
+        }
+        EOF
+
     - name: Build
       run: |
         flutter clean
         flutter pub get
-        flutter build apk --release --target-platform android-arm64
+        flutter build apk --release --target-platform android-arm64 --android-skip-build-dependency-validation
         
     - name: Upload
       uses: actions/upload-artifact@v4
