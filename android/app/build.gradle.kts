@@ -26,6 +26,10 @@ android {
         jvmTarget = "1.8"
     }
 
+    sourceSets {
+        getByName("main").java.srcDirs("src/main/kotlin")
+    }
+
     defaultConfig {
         applicationId = "com.example.t3r_c0d3"
         minSdk = 21
@@ -41,7 +45,7 @@ android {
         }
     }
     
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -50,8 +54,4 @@ android {
 
 flutter {
     source = "../.."
-}
-
-dependencies {
-    // Dependencias mínimas para evitar conflictos
 }
