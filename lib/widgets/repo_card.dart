@@ -87,18 +87,16 @@ class _RepoCardState extends State<RepoCard> with TickerProviderStateMixin {
             color: Colors.grey[900],
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color:
-                  _isHovered
-                      ? kPrimaryColor.withOpacity(0.5)
-                      : Colors.grey[800]!,
+              color: _isHovered
+                  ? kPrimaryColor.withOpacity(0.5)
+                  : Colors.grey[800]!,
               width: _isHovered ? 2 : 1,
             ),
             boxShadow: [
               BoxShadow(
-                color:
-                    _isHovered
-                        ? kPrimaryColor.withOpacity(0.2)
-                        : Colors.black.withOpacity(0.3),
+                color: _isHovered
+                    ? kPrimaryColor.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.3),
                 blurRadius: _isHovered ? 15 : 8,
                 spreadRadius: _isHovered ? 2 : 1,
                 offset: Offset(0, _isHovered ? 8 : 4),
@@ -270,12 +268,14 @@ class _RepoCardState extends State<RepoCard> with TickerProviderStateMixin {
     // Detectar tecnologías
     final desc = widget.repo.description.toLowerCase();
     if (desc.contains('python')) tags.add('Python');
-    if (desc.contains('node') || desc.contains('javascript'))
+    if (desc.contains('node') || desc.contains('javascript')) {
       tags.add('Node.js');
+    }
     if (desc.contains('go ')) tags.add('Go');
     if (desc.contains('rust')) tags.add('Rust');
-    if (desc.contains('security') || desc.contains('hack'))
+    if (desc.contains('security') || desc.contains('hack')) {
       tags.add('Security');
+    }
     if (desc.contains('tool')) tags.add('Tool');
 
     return tags
@@ -319,17 +319,16 @@ class _RepoCardState extends State<RepoCard> with TickerProviderStateMixin {
               ),
               shadowColor: Colors.green.withOpacity(0.4),
             ),
-            icon:
-                _isSaving
-                    ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                    : const Icon(Icons.download_rounded, size: 20),
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.download_rounded, size: 20),
             label: Text(
               _isSaving ? 'Procesando...' : 'Guardar',
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -347,21 +346,20 @@ class _RepoCardState extends State<RepoCard> with TickerProviderStateMixin {
           ),
           child: IconButton(
             onPressed: _isOpeningGitHub ? null : _handleGitHubOpen,
-            icon:
-                _isOpeningGitHub
-                    ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                    : const FaIcon(
-                      FontAwesomeIcons.github,
-                      color: Colors.white,
-                      size: 20,
+            icon: _isOpeningGitHub
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
+                  )
+                : const FaIcon(
+                    FontAwesomeIcons.github,
+                    color: Colors.white,
+                    size: 20,
+                  ),
             tooltip: 'Ver en GitHub',
           ),
         ),
@@ -461,39 +459,38 @@ class _RepoCardState extends State<RepoCard> with TickerProviderStateMixin {
     // Aquí podrías mostrar una página de detalles del repositorio
     showDialog(
       context: context,
-      builder:
-          (context) => Dialog(
-            backgroundColor: kBackgroundColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.repo.name,
-                    style: const TextStyle(
-                      color: kTextColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.repo.description,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cerrar'),
-                  ),
-                ],
+      builder: (context) => Dialog(
+        backgroundColor: kBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.repo.name,
+                style: const TextStyle(
+                  color: kTextColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Text(
+                widget.repo.description,
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cerrar'),
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 
@@ -537,85 +534,83 @@ class _RepoCardState extends State<RepoCard> with TickerProviderStateMixin {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: kBackgroundColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: const Text(
-              '📺 Anuncio requerido',
-              style: TextStyle(color: kTextColor),
-            ),
-            content: const Text(
-              'Para ver los detalles del repositorio, necesitas ver un anuncio. '
-              'Esto nos ayuda a mantener la app gratuita.',
-              style: TextStyle(color: Colors.white70),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _handleRepoTap(); // Reintentar
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
-                child: const Text(
-                  'Ver anuncio',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        backgroundColor: kBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          '📺 Anuncio requerido',
+          style: TextStyle(color: kTextColor),
+        ),
+        content: const Text(
+          'Para ver los detalles del repositorio, necesitas ver un anuncio. '
+          'Esto nos ayuda a mantener la app gratuita.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleRepoTap(); // Reintentar
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
+            child: const Text(
+              'Ver anuncio',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   void _showAdErrorDialog(String action) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: kBackgroundColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: const Text(
-              '📺 Anuncio no disponible',
-              style: TextStyle(color: kTextColor),
-            ),
-            content: Text(
-              'No hay anuncios disponibles $action. '
-              '¿Continuar de todas formas?',
-              style: const TextStyle(color: Colors.white70),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Proceder sin anuncio según la acción
-                  if (action.contains('comando')) {
-                    _processRepoSave();
-                  } else if (action.contains('GitHub')) {
-                    _openGitHubRepo();
-                  } else {
-                    _showRepoDetails();
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
-                child: const Text(
-                  'Continuar',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        backgroundColor: kBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          '📺 Anuncio no disponible',
+          style: TextStyle(color: kTextColor),
+        ),
+        content: Text(
+          'No hay anuncios disponibles $action. '
+          '¿Continuar de todas formas?',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Proceder sin anuncio según la acción
+              if (action.contains('comando')) {
+                _processRepoSave();
+              } else if (action.contains('GitHub')) {
+                _openGitHubRepo();
+              } else {
+                _showRepoDetails();
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
+            child: const Text(
+              'Continuar',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

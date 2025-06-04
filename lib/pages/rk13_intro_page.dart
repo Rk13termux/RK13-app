@@ -222,8 +222,8 @@ class _Rk13IntroPageState extends State<Rk13IntroPage>
                 child: ListView(
                   controller: _iconScrollController,
                   scrollDirection: Axis.horizontal,
-                  children: [
-                    const SizedBox(width: 18),
+                  children: const [
+                    SizedBox(width: 18),
                     _LangIcon(FontAwesomeIcons.python, Colors.yellow, 'Python'),
                     _LangIcon(FontAwesomeIcons.linux, Colors.white, 'Linux'),
                     _LangIcon(
@@ -263,7 +263,7 @@ class _Rk13IntroPageState extends State<Rk13IntroPage>
                     _LangIcon(FontAwesomeIcons.key, Colors.white, 'SSH'),
                     _LangIcon(
                         FontAwesomeIcons.windows, Colors.blue, 'Powershell'),
-                    const SizedBox(width: 18),
+                    SizedBox(width: 18),
                   ],
                 ),
               ),
@@ -273,16 +273,16 @@ class _Rk13IntroPageState extends State<Rk13IntroPage>
             // ✅ Sección de logos con animación
             FadeTransition(
               opacity: _fadeAnimation,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _LangIcon(
                         FontAwesomeIcons.terminal, Colors.white, 'Termux'),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     _LangIcon(FontAwesomeIcons.linux, Colors.white, 'Linux'),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     _LangIcon(
                         FontAwesomeIcons.windows, Colors.white, 'Windows'),
                   ],
@@ -363,7 +363,7 @@ class _Rk13IntroPageState extends State<Rk13IntroPage>
             // ✅ Tarjetas con animación escalonada
             _buildAnimatedCard(
               delay: 800,
-              child: _IntroCard(
+              child: const _IntroCard(
                 icon: FontAwesomeIcons.terminal,
                 title: 'Automatiza, aprende y hackea',
                 description:
@@ -374,7 +374,7 @@ class _Rk13IntroPageState extends State<Rk13IntroPage>
 
             _buildAnimatedCard(
               delay: 1000,
-              child: _IntroCard(
+              child: const _IntroCard(
                 icon: FontAwesomeIcons.shieldAlt,
                 title: 'Seguridad y Potencia',
                 description:
@@ -569,7 +569,7 @@ class _LangIcon extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String tooltip;
-  const _LangIcon(this.icon, this.color, this.tooltip, {super.key});
+  const _LangIcon(this.icon, this.color, this.tooltip);
 
   @override
   Widget build(BuildContext context) {

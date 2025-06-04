@@ -48,7 +48,7 @@ class GitCloneService {
   /// Construye comando de clonación optimizado
   static String _buildOptimizedCloneCommand(RepoModel repo) {
     final sanitizedName = _sanitizeRepoName(repo.name);
-    final baseCommand = 'cd ~ && ';
+    const baseCommand = 'cd ~ && ';
 
     // Comando git clone con optimizaciones
     final cloneCommand =
@@ -367,7 +367,7 @@ class GitCloneService {
     final baseCommand = await generateCloneCommand(repo);
 
     // Añadir verificaciones previas
-    final prerequisiteChecks = '''
+    const prerequisiteChecks = '''
 # Verificar conexión y herramientas
 if ! command -v git &> /dev/null; then
     echo "❌ Git no está instalado. Instala con: pkg install git"

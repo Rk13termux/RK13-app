@@ -100,7 +100,7 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
 
   final List<Widget> _pages = [
     const Rk13IntroPage(),
-    HomePage(),
+    const HomePage(),
     const LearnPythonPage(),
     const TermuxCommandsPage(),
     const BashToolsPage(),
@@ -203,13 +203,13 @@ class _MainLayoutState extends State<MainLayout> with WidgetsBindingObserver {
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: [
-                      DrawerHeader(
-                        decoration: const BoxDecoration(
+                      const DrawerHeader(
+                        decoration: BoxDecoration(
                           color: Color(0x00000000),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Icon(
                               Icons.terminal,
                               size: 48,

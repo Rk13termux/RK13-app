@@ -179,9 +179,9 @@ class _CloneSuccessDialogState extends State<CloneSuccessDialog>
           const SizedBox(height: 16),
 
           // Título principal
-          Text(
+          const Text(
             '🎉 ¡Comando Generado!',
-            style: const TextStyle(
+            style: TextStyle(
               color: kTextColor,
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -232,11 +232,11 @@ class _CloneSuccessDialogState extends State<CloneSuccessDialog>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Etiqueta del comando
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.terminal, color: kPrimaryColor, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.terminal, color: kPrimaryColor, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Comando de clonación:',
                 style: TextStyle(
                   color: kTextColor,
@@ -256,10 +256,9 @@ class _CloneSuccessDialogState extends State<CloneSuccessDialog>
               color: Colors.grey[900],
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color:
-                    _commandCopied
-                        ? Colors.green.withOpacity(0.5)
-                        : kPrimaryColor.withOpacity(0.3),
+                color: _commandCopied
+                    ? Colors.green.withOpacity(0.5)
+                    : kPrimaryColor.withOpacity(0.3),
                 width: _commandCopied ? 2 : 1,
               ),
               boxShadow: [
@@ -295,10 +294,9 @@ class _CloneSuccessDialogState extends State<CloneSuccessDialog>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color:
-                          _commandCopied
-                              ? Colors.green.withOpacity(0.2)
-                              : kPrimaryColor.withOpacity(0.1),
+                      color: _commandCopied
+                          ? Colors.green.withOpacity(0.2)
+                          : kPrimaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: _commandCopied ? Colors.green : kPrimaryColor,
@@ -415,13 +413,12 @@ class _CloneSuccessDialogState extends State<CloneSuccessDialog>
                 ),
               ],
             ),
-            child:
-                isLoading
-                    ? CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(color),
-                      strokeWidth: 2,
-                    )
-                    : FaIcon(icon, color: color, size: 24),
+            child: isLoading
+                ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                    strokeWidth: 2,
+                  )
+                : FaIcon(icon, color: color, size: 24),
           ),
           const SizedBox(height: 8),
           Text(
@@ -465,14 +462,14 @@ class _CloneSuccessDialogState extends State<CloneSuccessDialog>
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: Colors.blue.withOpacity(0.3)),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.blue, size: 16),
-                const SizedBox(width: 8),
+                Icon(Icons.info_outline, color: Colors.blue, size: 16),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Tip: El repositorio se descargará en tu directorio home (~)',
-                    style: const TextStyle(color: Colors.blue, fontSize: 12),
+                    style: TextStyle(color: Colors.blue, fontSize: 12),
                   ),
                 ),
               ],

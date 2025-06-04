@@ -24,7 +24,7 @@ jobs:
         
     - name: Fix gradle files
       run: |
-        # Fix android/build.gradle.kts (root)
+        # Fix android/build.gradle.kts (root) - SIN CONFIGURACIONES PROBLEMÁTICAS
         cat > android/build.gradle.kts << 'EOF'
         allprojects {
             repositories {
@@ -46,7 +46,7 @@ jobs:
         }
         EOF
         
-        # Fix android/app/build.gradle.kts
+        # Fix android/app/build.gradle.kts - SIN SHRINK RESOURCES
         cat > android/app/build.gradle.kts << 'EOF'
         import java.util.Properties
         
@@ -102,6 +102,13 @@ jobs:
             source = "../.."
         }
         EOF
+        
+        # Verificar archivos creados
+        echo "✅ Archivos Gradle corregidos:"
+        echo "📁 android/build.gradle.kts:"
+        head -5 android/build.gradle.kts
+        echo "📁 android/app/build.gradle.kts:"
+        head -5 android/app/build.gradle.kts
         
     - name: Build
       run: |

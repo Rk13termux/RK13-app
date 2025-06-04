@@ -5,12 +5,12 @@ class BashToolsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.all(24.0),
         child: Text(
           '📘 Esta sección es para: Bash Tools',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             color: Colors.white70,
             fontWeight: FontWeight.w400,

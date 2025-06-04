@@ -25,11 +25,11 @@ class TermuxStartPage extends StatelessWidget {
         backgroundColor: kBackgroundColor,
         elevation: 8,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Row(
+        title: const Row(
           children: [
-            const FaIcon(FontAwesomeIcons.terminal, color: Colors.white, size: 28),
-            const SizedBox(width: 12),
-            const Text(
+            FaIcon(FontAwesomeIcons.terminal, color: Colors.white, size: 28),
+            SizedBox(width: 12),
+            Text(
               'Comienza con Termux',
               style: TextStyle(
                 color: Colors.white,
@@ -44,23 +44,24 @@ class TermuxStartPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         children: [
-          Center(
+          const Center(
             child: CircleAvatar(
               backgroundColor: Colors.black,
               radius: 40,
-              child: const FaIcon(FontAwesomeIcons.terminal, color: Colors.white, size: 40),
+              child: FaIcon(FontAwesomeIcons.terminal,
+                  color: Colors.white, size: 40),
             ),
           ),
           const SizedBox(height: 22),
-          _SectionTitle('¿Qué es Termux?'),
-          _JustifiedText(
+          const _SectionTitle('¿Qué es Termux?'),
+          const _JustifiedText(
             'Termux es una aplicación gratuita y de código abierto lanzada en 2015 por Fredrik Fornwall. '
             'Permite tener un entorno Linux completo en Android, con acceso a Bash, gestor de paquetes, compiladores, lenguajes de programación y utilidades de red. '
             'Ideal para programadores, administradores de sistemas, pentesters y entusiastas de la automatización.',
           ),
           const _SectionDivider(),
-          _SectionTitle('¿Por qué es tan útil?'),
-          _JustifiedText(
+          const _SectionTitle('¿Por qué es tan útil?'),
+          const _JustifiedText(
             '• Ejecuta scripts Bash, Python, Node.js, Ruby, etc.\n'
             '• Instala distros Linux completas (Ubuntu, Debian, Arch) con proot-distro.\n'
             '• Monta servidores HTTP, SSH, FTP y más desde tu móvil.\n'
@@ -69,7 +70,7 @@ class TermuxStartPage extends StatelessWidget {
             '• Compatible con Windows y Linux para compartir archivos y scripts.',
           ),
           const _SectionDivider(),
-          _SectionTitle('Descargar Termux'),
+          const _SectionTitle('Descargar Termux'),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -82,7 +83,7 @@ class TermuxStartPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              const Expanded(
                 child: _DownloadButton(
                   color: Colors.black,
                   icon: FontAwesomeIcons.github,
@@ -93,52 +94,57 @@ class TermuxStartPage extends StatelessWidget {
             ],
           ),
           const _SectionDivider(),
-          _SectionTitle('Guía rápida para empezar'),
-          _JustifiedText('1. Instala Termux desde F-Droid o GitHub.'),
-          _JustifiedText('2. Abre Termux y actualiza los paquetes:'),
+          const _SectionTitle('Guía rápida para empezar'),
+          const _JustifiedText('1. Instala Termux desde F-Droid o GitHub.'),
+          const _JustifiedText('2. Abre Termux y actualiza los paquetes:'),
           const _CommandCode('pkg update && pkg upgrade'),
-          _JustifiedText('3. Instala utilidades básicas:'),
+          const _JustifiedText('3. Instala utilidades básicas:'),
           const _CommandCode('pkg install git python nano'),
-          _JustifiedText('4. Instala distros Linux con proot-distro:'),
+          const _JustifiedText('4. Instala distros Linux con proot-distro:'),
           const _CommandCode('pkg install proot-distro'),
           const _CommandCode('proot-distro list'),
           const _CommandCode('proot-distro install ubuntu'),
           const _CommandCode('proot-distro login ubuntu'),
-          _JustifiedText('5. Monta servidores:'),
+          const _JustifiedText('5. Monta servidores:'),
           const _CommandCode('python -m http.server 8080', label: 'HTTP'),
           const _CommandCode('pkg install openssh', label: 'SSH'),
           const _CommandCode('pkg install nodejs', label: 'Node.js'),
           const _SectionDivider(),
-          _SectionTitle('Historia y autor'),
-          _JustifiedText(
+          const _SectionTitle('Historia y autor'),
+          const _JustifiedText(
             'Termux fue creado por Fredrik Fornwall en 2015. El proyecto es mantenido actualmente por la comunidad open source. '
             'Su objetivo es acercar la potencia de Linux y la terminal a cualquier usuario de Android, permitiendo programar, administrar sistemas y automatizar tareas desde el móvil.',
           ),
           const _SectionDivider(),
-          _SectionTitle('Preguntas frecuentes'),
-          _FaqItem(
+          const _SectionTitle('Preguntas frecuentes'),
+          const _FaqItem(
             question: '¿Termux es seguro?',
-            answer: 'Sí, siempre que descargues desde fuentes oficiales. No requiere root y no accede a tus datos personales sin permiso.',
+            answer:
+                'Sí, siempre que descargues desde fuentes oficiales. No requiere root y no accede a tus datos personales sin permiso.',
           ),
-          _FaqItem(
+          const _FaqItem(
             question: '¿Puedo instalar Kali Linux o Parrot en Termux?',
-            answer: 'Puedes instalar distros como Ubuntu, Debian, Arch, Alpine, Fedora, entre otras, usando proot-distro. Kali y Parrot no están oficialmente soportadas, pero hay scripts de la comunidad.',
+            answer:
+                'Puedes instalar distros como Ubuntu, Debian, Arch, Alpine, Fedora, entre otras, usando proot-distro. Kali y Parrot no están oficialmente soportadas, pero hay scripts de la comunidad.',
           ),
-          _FaqItem(
+          const _FaqItem(
             question: '¿Qué limitaciones tiene respecto a un Linux real?',
-            answer: 'No tiene acceso a todos los dispositivos ni a funciones de bajo nivel (no root). Algunas herramientas pueden no funcionar igual que en un PC.',
+            answer:
+                'No tiene acceso a todos los dispositivos ni a funciones de bajo nivel (no root). Algunas herramientas pueden no funcionar igual que en un PC.',
           ),
-          _FaqItem(
+          const _FaqItem(
             question: '¿Puedo programar y compilar en C/C++/Python?',
-            answer: 'Sí, puedes instalar compiladores y entornos de desarrollo para C, C++, Python, Node.js, Ruby, Go, Rust, etc.',
+            answer:
+                'Sí, puedes instalar compiladores y entornos de desarrollo para C, C++, Python, Node.js, Ruby, Go, Rust, etc.',
           ),
-          _FaqItem(
+          const _FaqItem(
             question: '¿Cómo comparto archivos con Windows o Linux?',
-            answer: 'Puedes usar SSH, FTP, almacenamiento compartido o copiar archivos desde la carpeta de Termux a tu almacenamiento interno.',
+            answer:
+                'Puedes usar SSH, FTP, almacenamiento compartido o copiar archivos desde la carpeta de Termux a tu almacenamiento interno.',
           ),
           const _SectionDivider(),
-          _SectionTitle('Compatibilidad multiplataforma'),
-          _JustifiedText(
+          const _SectionTitle('Compatibilidad multiplataforma'),
+          const _JustifiedText(
             'Esta app y sus recursos están pensados para usuarios de Termux, Linux y Windows. '
             'Podrás aprender, automatizar y compartir scripts o herramientas entre estos sistemas fácilmente.',
           ),
@@ -175,8 +181,8 @@ class _SectionDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
       child: Divider(
         color: Colors.white12,
         thickness: 1,
@@ -229,7 +235,8 @@ class _DownloadButton extends StatelessWidget {
           backgroundColor: color,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           elevation: 6,
           textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
@@ -258,17 +265,20 @@ class _FaqItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FaIcon(FontAwesomeIcons.circleQuestion, color: kPrimaryColor, size: 22),
+          const FaIcon(FontAwesomeIcons.circleQuestion,
+              color: kPrimaryColor, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: RichText(
               textAlign: TextAlign.justify,
               text: TextSpan(
-                style: const TextStyle(color: Colors.white70, fontSize: 16, height: 1.5),
+                style: const TextStyle(
+                    color: Colors.white70, fontSize: 16, height: 1.5),
                 children: [
                   TextSpan(
                     text: '$question\n',
-                    style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: kPrimaryColor, fontWeight: FontWeight.bold),
                   ),
                   TextSpan(text: answer),
                 ],
@@ -326,7 +336,8 @@ class _CommandCode extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.copy, color: Colors.white54, size: 20),
+                    icon:
+                        const Icon(Icons.copy, color: Colors.white54, size: 20),
                     tooltip: 'Copiar',
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: command));

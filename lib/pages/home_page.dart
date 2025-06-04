@@ -10,7 +10,7 @@ final List<RepoModel> repos = [
   // ... existing repos ...
   // (mantén todos los repositorios que ya tienes definidos)
   // --- Aprendizaje y Recursos ---
-  RepoModel(
+  const RepoModel(
     name: "freeCodeCamp",
     description: "Plataforma gratuita para aprender a programar.",
     scriptFile: "freecodecamp.sh",
