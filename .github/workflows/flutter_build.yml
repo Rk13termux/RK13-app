@@ -32,8 +32,8 @@ jobs:
           sed -i '/compileSdk = 34/a\    ndkVersion = "27.0.12077973"' android/app/build.gradle.kts
         fi
         
-        # 3. Corregir versión de Kotlin en settings.gradle.kts (compatible con AGP 8.7.0)
-        sed -i 's/org.jetbrains.kotlin.android.*version.*"1.8.22"/org.jetbrains.kotlin.android" version "1.9.10"/g' android/settings.gradle.kts
+        # 3. Corregir versión de Kotlin en settings.gradle.kts CON SINTAXIS EXACTA
+        sed -i 's/id("org.jetbrains.kotlin.android") version "1.8.22" apply false/id("org.jetbrains.kotlin.android") version "1.9.10" apply false/g' android/settings.gradle.kts
         
         # 4. Verificar cambios
         echo "✅ Cambios en build.gradle.kts:"
@@ -41,6 +41,9 @@ jobs:
         
         echo "✅ Cambios en settings.gradle.kts:"
         grep -n "kotlin.android" android/settings.gradle.kts || echo "No se encontró kotlin"
+        
+        echo "✅ Verificar sintaxis completa línea 22:"
+        sed -n '22p' android/settings.gradle.kts
         
     - name: Build
       run: |
