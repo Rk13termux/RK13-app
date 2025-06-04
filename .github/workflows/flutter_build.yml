@@ -22,10 +22,8 @@ jobs:
         flutter-version: '3.32.1'
         cache: true
         
-    - name: Fix specific build issues
+    - name: Fix build configuration
       run: |
-        # Solo corregir los errores específicos sin regenerar
-        
         # 1. Corregir minSdk y NDK en build.gradle.kts
         sed -i 's/minSdk = 21/minSdk = 23/g' android/app/build.gradle.kts
         
@@ -34,9 +32,15 @@ jobs:
           sed -i '/compileSdk = 34/a\    ndkVersion = "27.0.12077973"' android/app/build.gradle.kts
         fi
         
-        # 3. Verificar cambios
-        echo "✅ Cambios aplicados:"
+        # 3. Corregir versión de Kotlin en settings.gradle.kts (compatible con AGP 8.7.0)
+        sed -i 's/org.jetbrains.kotlin.android.*version.*"1.8.22"/org.jetbrains.kotlin.android" version "1.9.10"/g' android/settings.gradle.kts
+        
+        # 4. Verificar cambios
+        echo "✅ Cambios en build.gradle.kts:"
         grep -n "minSdk\|ndkVersion" android/app/build.gradle.kts || echo "No se encontraron las líneas"
+        
+        echo "✅ Cambios en settings.gradle.kts:"
+        grep -n "kotlin.android" android/settings.gradle.kts || echo "No se encontró kotlin"
         
     - name: Build
       run: |
